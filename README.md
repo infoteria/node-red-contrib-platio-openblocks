@@ -113,8 +113,3 @@ msg.payload = {
   }
 };
 ```
-
-
-## OpenBlocksでの使用
-
-OpenBlocks上のNode-REDでPlatioノードを使用する場合、使用しているnode.jsのバージョンが古いため、そのままでは使用することができません。OpenBlocks上では、node-red-contrib-platio-openblocksパッケージをご利用ください。
