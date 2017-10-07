@@ -1,0 +1,25 @@
+{
+  "name": "node-red-contrib-platio-openblocks",
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "test": "mocha test/*.test.js"
+  },
+  "node-red": {
+    "nodes": {
+      "platio in": "src/platioIn.js",
+      "platio out": "src/platioOut.js"
+    }
+  },
+  "dependencies": {
+    "lodash": "3.10.1",
+    "request": "2.65.0"
+  },
+  "devDependencies": {
+    "mocha": "^3.4.2",
+    "proxyquire": "^1.7.4",
+    "should": "^11.2.1",
+    "should-sinon": "0.0.5",
+    "sinon": "^2.3.4"
+  }
+}
