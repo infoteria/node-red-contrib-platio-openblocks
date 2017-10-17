@@ -1,5 +1,11 @@
 'use strict';
 
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var proxyquire = require('proxyquire');
 var should = require('should');
 var sinon = require('sinon');
@@ -16,7 +22,8 @@ describe('Platio', function () {
                     node.credentials = {};
                     node.on = sinon.stub();
                     node.error = sinon.stub();
-                }
+                },
+                registerType: sinon.stub()
             }
         };
         request = sinon.stub();
@@ -188,6 +195,12 @@ describe('Platio', function () {
             var platio = new Platio(RED, {});
             platio.getCredential({}, 'authorization', 'default').should.equal('default');
         });
+
+        it('should return a default value if credentials is undefined', function () {
+            var platio = new Platio(RED, {});
+            platio.credentials = undefined;
+            platio.getCredential({}, 'authorization', 'default').should.equal('default');
+        });
     });
 
     describe('_getErrorMessage', function () {
@@ -213,6 +226,58 @@ describe('Platio', function () {
 
         it('should return Unknown error if nil', function () {
             platio._getErrorMessage(undefined).should.equal('Unknown error');
+        });
+    });
+
+    describe('register', function () {
+        it('should call registerType with credentials', function () {
+            var Test = function Test() {
+                _classCallCheck(this, Test);
+            };
+
+            Platio.register(RED, 'test', Test);
+
+            RED.nodes.registerType.should.be.calledWithExactly('test', Test, {
+                credentials: {
+                    authorization: {
+                        type: 'password'
+                    }
+                }
+            });
+        });
+
+        it('should restore prototype chain if it\'s broken', function () {
+            var Base = function Base() {
+                _classCallCheck(this, Base);
+            };
+
+            var Derived = function (_Base) {
+                _inherits(Derived, _Base);
+
+                function Derived() {
+                    _classCallCheck(this, Derived);
+
+                    return _possibleConstructorReturn(this, (Derived.__proto__ || Object.getPrototypeOf(Derived)).apply(this, arguments));
+                }
+
+                return Derived;
+            }(Base);
+
+            var base = Object.getPrototypeOf(Derived.prototype);
+
+            var Node = function Node() {
+                _classCallCheck(this, Node);
+            };
+
+            var node = new Node();
+            RED.nodes.registerType.callsFake(function (name, constructor, options) {
+                Object.setPrototypeOf(constructor.prototype, node);
+            });
+
+            Platio.register(RED, 'test', Derived);
+
+            Object.getPrototypeOf(Derived.prototype).should.equal(base);
+            Object.getPrototypeOf(base).should.equal(node);
         });
     });
 });
